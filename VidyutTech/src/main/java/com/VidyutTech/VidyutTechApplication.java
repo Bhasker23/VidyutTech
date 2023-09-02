@@ -10,4 +10,7 @@ public class VidyutTechApplication {
 		SpringApplication.run(VidyutTechApplication.class, args);
 	}
 
+	
+//	http://localhost:8080/swagger-ui/index.html we need to always use latest swagger dependency in pom.xml
+	
 }
