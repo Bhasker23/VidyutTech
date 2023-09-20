@@ -12,4 +12,6 @@ public interface UserService {
 	public Optional<Battery> getBatteryAllInfo(Integer batteryId);
 	
 	public String getSpecificInfo(Integer batteryId, String type);
+
+	public String sendDataToServerEveryMinute();
 }

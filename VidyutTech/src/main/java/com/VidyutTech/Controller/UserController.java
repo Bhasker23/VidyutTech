@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,5 +33,18 @@ public class UserController {
 		
 		return new ResponseEntity<String>(userService.getSpecificInfo(batteryId, type),HttpStatus.OK);
 		
+	}
+	
+//	@GetMapping("/getSpecificInfoAtGivenTime{type}")
+//	public ResponseEntity<String> getSpecificInfoAtGivenTime(@RequestParam Integer batteryId,
+//			@RequestParam String startTime, @RequestParam String endTime, @PathVariable String type ){
+//		return new ResponseEntity<String>(("Hello my name is Ram" + LocalTime.now()), HttpStatus.OK);
+//	}
+	
+	@GetMapping("/sendDataToServer")
+	@Scheduled(fixedRate = 60000)
+	public ResponseEntity<String> sendDataToServerEveryMinute() {
+		
+		return new ResponseEntity<String>(userService.sendDataToServerEveryMinute(),HttpStatus.OK); 
 	}
 }

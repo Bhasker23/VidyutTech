@@ -1,6 +1,7 @@
 package com.VidyutTech.Service;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,7 +21,10 @@ public class BatteryServiceImpl implements BatteryService {
 	@Override
 	public Battery addBattery(Battery battery) {
 		
-		battery.setTime(LocalDateTime.now());
+		LocalDateTime BatterydateTime = LocalDateTime.now();
+		DateTimeFormatter btDateTime = DateTimeFormatter.ofPattern("dd-MM-YYYY hh:mm");
+		
+		battery.setTime(BatterydateTime.format(btDateTime));
 		Battery batteryObj = batterDb.save(battery);
 		
 		return batteryObj;
