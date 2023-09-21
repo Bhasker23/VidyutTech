@@ -22,7 +22,7 @@ public class BatteryServiceImpl implements BatteryService {
 	public Battery addBattery(Battery battery) {
 		
 		LocalDateTime BatterydateTime = LocalDateTime.now();
-		DateTimeFormatter btDateTime = DateTimeFormatter.ofPattern("dd-MM-YYYY hh:mm");
+		DateTimeFormatter btDateTime = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
 		
 		battery.setTime(BatterydateTime.format(btDateTime));
 		Battery batteryObj = batterDb.save(battery);

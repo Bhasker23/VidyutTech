@@ -2,27 +2,52 @@ package com.VidyutTech.Service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
+import org.aspectj.weaver.bcel.AtAjAttributes;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.VidyutTech.Repo.BatteryRepo;
 import com.VidyutTech.Repo.BatteryToServerRepo;
+import com.VidyutTech.Repo.UserRepo;
 import com.VidyutTech.models.Battery;
 import com.VidyutTech.models.BatteryToServer;
+import com.VidyutTech.models.User;
 
 @Service
 public class UserServiceImpl implements UserService{
 
+	int count = 1;
 	
 	@Autowired
 	private BatteryRepo batteryDb;
 	
-	
 	@Autowired
 	private BatteryToServerRepo btToServerDb;
+	
+	@Autowired
+	private UserRepo userRepo;
+	
+	@Override
+	public String login(User user) {
+		
+		User userdata = new User();
+		
+		System.out.println(user.getName()+ " "+ user.getUserID()+" "+ user.getPassword());
+		
+		userdata.setUserID(user.getUserID());
+		userdata.setName(user.getName());
+		userdata.setPassword(user.getPassword());
+		
+		userRepo.save(user);
+		return userdata.getName() +  " your account is created with " + userdata.getUserID();
+	}
 	
 	@Override
 	public Optional<Battery> getBatteryAllInfo(Integer batteryId) {
@@ -68,31 +93,17 @@ public class UserServiceImpl implements UserService{
 	
 
 	@Override
+	@Scheduled(fixedRate = 60000)
 	public String sendDataToServerEveryMinute() {
-		
-//		BatteriesInfo btInfo = new BatteriesInfo();
-//		List<Battery> batteries = batteryDb.findAll();
-//		System.out.println(batteries);
-//	    List<Battery> btSet = btInfo.getBatteriesSet();
-//
-////		batteries.stream().map(x -> btInfo.getBatteriesSet().add(x)).collect(Collectors.toSet());
-//		
-//		for(Battery bt : batteries) {
-//			btSet.add(bt);
-//		}
-//		
-//		batteriesInfoDb.save(btInfo);
-//		
-//		
-//		System.out.println("battery Set"+ btSet);
 		
 		List<Battery> batteries = batteryDb.findAll();
 		
 		LocalDateTime BatterydateTime = LocalDateTime.now();
-		DateTimeFormatter btDateTime = DateTimeFormatter.ofPattern("dd-MM-YYYY hh:mm");
+		DateTimeFormatter btDateTime = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
 		
 		for(Battery bt : batteries) {
 			BatteryToServer btServer = new BatteryToServer();
+			btServer.setServerId(count++);
 			btServer.setBatteryID(bt.getBatteryID());
 			btServer.setCurrent(bt.getCurrent());
 			btServer.setTemp(bt.getTemp());
@@ -102,12 +113,56 @@ public class UserServiceImpl implements UserService{
 			btToServerDb.save(btServer);
 		
 		}
+
+		return "Your Batteries are Sending Data to Server once every Minute.";
+	}
+
+	
+	@Override
+	public Set<String> getSpeInfoAtGivenTime(int batteryId, String start, String end, String type) {
+		
+		List<BatteryToServer>  listBtToSer = btToServerDb.findAll();
+		Set<String> btInfoinTime = new LinkedHashSet<>();
 		
 	
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
+		LocalDateTime startTime = LocalDateTime.parse(start, formatter);
+		LocalDateTime endTime = LocalDateTime.parse(end, formatter);
+
 		
-		return "Your Batteries are Sending Data to Server once every Minute.";
+		
+		for(BatteryToServer btser : listBtToSer) {
+			
+			if(btser.getBatteryID().equals(batteryId) && LocalDateTime.parse(btser.getTime(), formatter).isAfter(startTime)) {
+				
+				if(type.equalsIgnoreCase("voltage")) {
+					double value = btser.getVoltage();
+					btInfoinTime.add("Battery "+ type + " is " + value + " at "+ btser.getTime());
+				}
+				
+				if(type.equalsIgnoreCase("current")) {
+					double value = btser.getTemp();
+					btInfoinTime.add("Battery "+ type + " is " + value + " at "+ btser.getTime());
+				}
+				if(type.equalsIgnoreCase("temp")) {
+					Integer value = btser.getCurrent();
+					btInfoinTime.add("Battery "+ type + " is " + value + " at "+ btser.getTime());
+				}
+			}
+			else if (btser.getBatteryID().equals(batteryId) && LocalDateTime.parse(btser.getTime(), formatter).equals(endTime))
+			{
+			
+				break;
+			}
+		}
+		
+		
+		
+		return btInfoinTime;
 	}
 
 
 
+
+	
 }

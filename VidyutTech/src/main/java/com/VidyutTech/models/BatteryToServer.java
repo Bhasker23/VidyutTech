@@ -12,7 +12,6 @@ import lombok.Data;
 public class BatteryToServer {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer serverId;
 	private Integer batteryID;
 	private Integer current;
