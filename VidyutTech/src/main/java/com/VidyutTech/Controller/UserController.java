@@ -7,6 +7,7 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,6 +23,7 @@ import com.VidyutTech.models.User;
 
 @RestController
 @RequestMapping("/user")
+@CrossOrigin(origins = "*")
 public class UserController {
 
 	@Autowired
@@ -47,10 +49,10 @@ public class UserController {
 	
 	@GetMapping("/getSpecificInfoAtGivenTime{type}")
 	public ResponseEntity<Set<String>> getSpecificInfoAtGivenTime(@RequestParam Integer batteryId,
-			@RequestParam String startTime, @RequestParam String endTime, @PathVariable String type ){
+			@RequestParam String startTime, @PathVariable String type ){
 		return new ResponseEntity<Set<String>>(userService
 				.getSpeInfoAtGivenTime( batteryId,
-					 startTime,   endTime,   type),HttpStatus.OK);
+					 startTime,  type),HttpStatus.OK);
 	}
 	
 	@GetMapping("/sendDataToServer")

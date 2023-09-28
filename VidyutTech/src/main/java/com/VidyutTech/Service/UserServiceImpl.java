@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import com.VidyutTech.Exception.BatteryException;
 import com.VidyutTech.Repo.BatteryRepo;
 import com.VidyutTech.Repo.BatteryToServerRepo;
 import com.VidyutTech.Repo.UserRepo;
@@ -52,6 +53,9 @@ public class UserServiceImpl implements UserService{
 	@Override
 	public Optional<Battery> getBatteryAllInfo(Integer batteryId) {
 		 
+		if(batteryDb.findById(batteryId) == null) {
+			throw new BatteryException(batteryId+ " is not found");
+		}
 		Optional<Battery> batteryInfo = batteryDb.findById(batteryId);
 		System.out.println(batteryInfo.get().getTime());
 		
@@ -60,6 +64,10 @@ public class UserServiceImpl implements UserService{
 
 	@Override
 	public String getSpecificInfo(Integer batteryId, String type) {
+		
+		if(batteryDb.findById(batteryId) == null) {
+			throw new BatteryException(batteryId+ " is not found");
+		}
 		
 		Optional<Battery> batteryInfo = batteryDb.findById(batteryId);
 		
@@ -96,6 +104,7 @@ public class UserServiceImpl implements UserService{
 	@Scheduled(fixedRate = 60000)
 	public String sendDataToServerEveryMinute() {
 		
+		
 		List<Battery> batteries = batteryDb.findAll();
 		
 		LocalDateTime BatterydateTime = LocalDateTime.now();
@@ -119,16 +128,18 @@ public class UserServiceImpl implements UserService{
 
 	
 	@Override
-	public Set<String> getSpeInfoAtGivenTime(int batteryId, String start, String end, String type) {
+	public Set<String> getSpeInfoAtGivenTime(int batteryId, String start, String type) {
+		
+		if(batteryDb.findById(batteryId) == null) {
+			throw new BatteryException(batteryId+ " is not found");
+		}
 		
 		List<BatteryToServer>  listBtToSer = btToServerDb.findAll();
 		Set<String> btInfoinTime = new LinkedHashSet<>();
 		
-	
+
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
 		LocalDateTime startTime = LocalDateTime.parse(start, formatter);
-		LocalDateTime endTime = LocalDateTime.parse(end, formatter);
-
 		
 		
 		for(BatteryToServer btser : listBtToSer) {
@@ -148,21 +159,12 @@ public class UserServiceImpl implements UserService{
 					Integer value = btser.getCurrent();
 					btInfoinTime.add("Battery "+ type + " is " + value + " at "+ btser.getTime());
 				}
-			}
-			else if (btser.getBatteryID().equals(batteryId) && LocalDateTime.parse(btser.getTime(), formatter).equals(endTime))
-			{
+			}	
 			
-				break;
-			}
 		}
-		
-		
-		
+
 		return btInfoinTime;
 	}
-
-
-
 
 	
 }

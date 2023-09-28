@@ -20,7 +20,7 @@ public interface UserService {
 
 	public String sendDataToServerEveryMinute();
 
-	public Set<String> getSpeInfoAtGivenTime(int BatteryID, String start, String end, String type);
+	public Set<String> getSpeInfoAtGivenTime(int BatteryID, String start, String type);
 	
 	
 }
