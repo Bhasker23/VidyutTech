@@ -103,7 +103,7 @@ public class UserServiceImpl implements UserService{
 	
 
 	@Override
-	@Scheduled(fixedRate = 500000)
+	@Scheduled(fixedRate = 900000) /*15 Minutes for every */
 	public String sendDataToServerEveryMinute() {
 		
 		
