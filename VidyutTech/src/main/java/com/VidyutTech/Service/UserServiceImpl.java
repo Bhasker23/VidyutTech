@@ -2,18 +2,17 @@ package com.VidyutTech.Service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import org.aspectj.weaver.bcel.AtAjAttributes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.VidyutTech.Exception.BatteryException;
+import com.VidyutTech.Exception.UserException;
 import com.VidyutTech.Repo.BatteryRepo;
 import com.VidyutTech.Repo.BatteryToServerRepo;
 import com.VidyutTech.Repo.UserRepo;
@@ -24,7 +23,7 @@ import com.VidyutTech.models.User;
 @Service
 public class UserServiceImpl implements UserService{
 
-	int count = 1;
+	int count = 101;
 	
 	@Autowired
 	private BatteryRepo batteryDb;
@@ -36,26 +35,25 @@ public class UserServiceImpl implements UserService{
 	private UserRepo userRepo;
 	
 	@Override
-	public String login(User user) {
+	public String signUp(User user) {
 		
-		User userdata = new User();
-		
-		System.out.println(user.getName()+ " "+ user.getUserID()+" "+ user.getPassword());
-		
-		userdata.setUserID(user.getUserID());
-		userdata.setName(user.getName());
-		userdata.setPassword(user.getPassword());
-		
+		if (userRepo.findByNumber(user.getNumber()).isPresent()) {
+			System.out.println(userRepo.findById(user.getNumber()));
+			throw new UserException("You are already Registered....");
+		}
+		user.setPassword(String.valueOf(user.getPassword().hashCode()));
 		userRepo.save(user);
-		return userdata.getName() +  " your account is created with " + userdata.getUserID();
+		return user.getName() +  " your account is created.";
 	}
 	
 	@Override
 	public Optional<Battery> getBatteryAllInfo(Integer batteryId) {
 		 
-		if(batteryDb.findById(batteryId) == null) {
-			throw new BatteryException(batteryId+ " is not found");
+		if(batteryDb.findById(batteryId).isEmpty()) {
+			throw new BatteryException(batteryId+ " not found.");
 		}
+		
+		
 		Optional<Battery> batteryInfo = batteryDb.findById(batteryId);
 		System.out.println(batteryInfo.get().getTime());
 		
@@ -65,43 +63,47 @@ public class UserServiceImpl implements UserService{
 	@Override
 	public String getSpecificInfo(Integer batteryId, String type) {
 		
-		if(batteryDb.findById(batteryId) == null) {
-			throw new BatteryException(batteryId+ " is not found");
-		}
 		
-		Optional<Battery> batteryInfo = batteryDb.findById(batteryId);
-		
-		if(type.equalsIgnoreCase("voltage")) {
-			double value = batteryInfo.get().getVoltage();
-			String str = "your battery "+ type  + " is " + value;
-			return str;
+		if(batteryDb.findById(batteryId).isEmpty()) {
+			throw new BatteryException(batteryId+ " not found");
 		}
-		
-		if(type.equalsIgnoreCase("current")) {
-			double value = batteryInfo.get().getTemp();
-			String str = "your battery "+ type  + " is " + value + " C. ";
-			return str;
-		}
-		if(type.equalsIgnoreCase("temp")) {
-			Integer value = batteryInfo.get().getCurrent();
-			String str = "your battery "+ type  + " is " + value +" ";
-			return str;
-		}
-		if(type.equalsIgnoreCase("time")) {
-			String value = batteryInfo.get().getTime();
-			String str = "your battery "+ type  + " is " + value;
-			return str;
-		}
-			
-		
 		else {
-			return "No data found for given type of BatteryId = " + batteryId;
+		
+			Optional<Battery> batteryInfo = batteryDb.findById(batteryId);
+			
+			if(type.equalsIgnoreCase("voltage")) {
+				double value = batteryInfo.get().getVoltage();
+				String str = "Your battery's "+ type  + " is " + value+ " Volt ";
+				return str;
+			}
+			
+			if(type.equalsIgnoreCase("current")) {
+				double value = batteryInfo.get().getTemp();
+				String str = "Your battery's "+ type  + " is " + value + " Amp ";
+				return str;
+			}
+			if(type.equalsIgnoreCase("temp")) {
+				Integer value = batteryInfo.get().getCurrent();
+				String str = "Your battery's "+ type  + " is " + value +" C. ";
+				return str;
+			}
+			if(type.equalsIgnoreCase("time")) {
+				String value = batteryInfo.get().getTime();
+				String str = "Your battery's "+ type  + " is " + value;
+				return str;
+			}
+				
+			
+			else {
+				return "No data found for given type of BatteryId = " + batteryId;
+			}
+		
 		}
 	}
 	
 
 	@Override
-	@Scheduled(fixedRate = 60000)
+	@Scheduled(fixedRate = 500000)
 	public String sendDataToServerEveryMinute() {
 		
 		
@@ -124,13 +126,15 @@ public class UserServiceImpl implements UserService{
 		}
 
 		return "Your Batteries are Sending Data to Server once every Minute.";
+		
+	  
 	}
 
 	
 	@Override
 	public Set<String> getSpeInfoAtGivenTime(int batteryId, String start, String type) {
 		
-		if(batteryDb.findById(batteryId) == null) {
+		if(batteryDb.findById(batteryId).isEmpty()) {
 			throw new BatteryException(batteryId+ " is not found");
 		}
 		
@@ -166,5 +170,15 @@ public class UserServiceImpl implements UserService{
 		return btInfoinTime;
 	}
 
-	
+	@Override
+	public String logout(Long userId) {
+
+		if (userRepo.findByNumber(userId).isEmpty()){
+			throw  new UserException("You are Not registered yet, Please SignUp first..");
+		}
+		userRepo.deleteById(userId);
+		return "You have successfully logged out..";
+	}
+
+
 }

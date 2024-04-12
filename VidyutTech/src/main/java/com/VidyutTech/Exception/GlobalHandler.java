@@ -12,12 +12,13 @@ import org.springframework.web.context.request.WebRequest;
 public class GlobalHandler {
 
 	@ExceptionHandler(BatteryException.class)
-	public ResponseEntity<ExceptionResponse> adminRegisterException(BatteryException ae, WebRequest wr){
+	public ResponseEntity<ExceptionResponse> adminRegisteException(BatteryException ae, WebRequest wr){
 		
 		ExceptionResponse ex = new ExceptionResponse();
 		ex.setMessage(ae.getMessage());
 		ex.setDesc(wr.getDescription(false));
 		ex.setDate(LocalDate.now());
+	
 		
 		return new ResponseEntity<>(ex,HttpStatus.BAD_REQUEST);
 	}

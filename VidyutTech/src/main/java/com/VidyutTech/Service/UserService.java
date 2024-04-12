@@ -12,7 +12,7 @@ import com.VidyutTech.models.User;
 @Service
 public interface UserService {
 	
-	public String login(User user);
+	public String signUp(User user);
 
 	public Optional<Battery> getBatteryAllInfo(Integer batteryId);
 	
@@ -21,6 +21,6 @@ public interface UserService {
 	public String sendDataToServerEveryMinute();
 
 	public Set<String> getSpeInfoAtGivenTime(int BatteryID, String start, String type);
-	
-	
+
+	public String logout(Long userId);
 }

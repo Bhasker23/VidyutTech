@@ -20,11 +20,12 @@ public class BatteryServiceImpl implements BatteryService {
 	
 	@Override
 	public Battery addBattery(Battery battery) {
-		
-		LocalDateTime BatterydateTime = LocalDateTime.now();
+
+		System.out.println("calling method add battery");
+		LocalDateTime batterydateTime = LocalDateTime.now();
 		DateTimeFormatter btDateTime = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
 		
-		battery.setTime(BatterydateTime.format(btDateTime));
+		battery.setTime(batterydateTime.format(btDateTime));
 		Battery batteryObj = batterDb.save(battery);
 		
 		return batteryObj;

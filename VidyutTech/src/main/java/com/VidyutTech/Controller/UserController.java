@@ -28,10 +28,10 @@ public class UserController {
 
 	@Autowired
 	private UserService userService;
-	
+
 	@PostMapping("/signUp")
-	public ResponseEntity<String> userLogin(@RequestBody User user){
-		return new ResponseEntity<String> (userService.login(user),HttpStatus.OK);
+	public ResponseEntity<String> userSignUp(@RequestBody User user){
+		return new ResponseEntity<String> (userService.signUp(user),HttpStatus.OK);
 	}
 	
 	@GetMapping("/getBatteryInfo")
@@ -59,5 +59,10 @@ public class UserController {
 	public ResponseEntity<String> sendDataToServerEveryMinute() {
 		
 		return new ResponseEntity<String>(userService.sendDataToServerEveryMinute(),HttpStatus.OK); 
+	}
+
+	@GetMapping("/logout")
+	public ResponseEntity<String> logout(@RequestParam Long userId){
+		return new ResponseEntity<String>(userService.logout(userId), HttpStatus.NO_CONTENT);
 	}
 }
